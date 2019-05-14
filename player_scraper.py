@@ -55,6 +55,7 @@ BASE_URL = 'https://www.ultimatetennisstatistics.com/playerProfile?name='
 URL_2 = 'http://www.tennisabstract.com/cgi-bin/player.cgi?p='
 URL_3 = 'https://www.scoreboard.com/tennis/rankings/atp/'
 
+# upgrade to last seven
 def get_last5(elements, player_, driver, session):
 
 	url = driver.current_url
@@ -234,6 +235,7 @@ def update_db(player, session):
 	stats = get_stats(player)
 
 	player_ = session.query(players).filter_by(player_hash_id = player.name_hash).first()
+	
 	if player_:
 		# reset the last update to now
 		player_.lastupdate = time.time()
@@ -278,6 +280,8 @@ def get_stats(player):
 	stats[player.player_name +'_firstWon'] = statistics.mean(player.firstserveswon)
 	stats[player.player_name +'_sndWon'] = statistics.mean(player.sndserveswon)
 	print(stats)
+
+	# finish with the same format than the statistics than in the training process
 	return stats
 
 # might need to complexify the process
@@ -291,8 +295,13 @@ def get_names(player):
 	names = player.split()
 	return names[0], names[1]
 
-def scrape_players(players, session):
+def scrape_players(games, session):
 	driver = create_driver()
+	players = []
+	# transfer the keys of the game sub-dict (the players)
+	for game in list(games.keys()):
+		players.append(list(games[game].keys()))
+
 	return scrape_stats_2(players, driver, session)
 
 def main():
